@@ -24,6 +24,10 @@ docker compose up --build -d
 
 无法识别个人时只输出满足区域交集约束的人数上下界；矛盾观测隔离而非伪造精确人数。完整数值、边界和异常定义见 `docs/DATA-DICTIONARY.md`。
 
+## 客流修正包与证据包
+
+向 `/api/runs/<run_id>/patches` 提交与观测同表头的修正CSV（部分区域/交集亦可）。修正项先入修正账本，不会逐项混入正式区间；一个时段只有全部观测键齐备且通过约束检查才重算并晋级为不可变新版本证据包，旧版本永久留存。同一修正按内容哈希幂等，重试不新增版本；低版本按 STALE_VERSION 拒绝。M5估界页与M7归档导出共用同一份活动证据包与指纹，导出入口 `/api/runs/<run_id>/evidence/export.csv`，版本历史见 `/api/runs/<run_id>/evidence/history`。裁决细则见 `docs/DATA-DICTIONARY.md` 的“客流修正包与正式观测证据包”。
+
 ## 验证
 
 ```bash

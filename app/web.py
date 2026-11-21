@@ -1,9 +1,19 @@
-import base64
+import base64,json
 from flask import request,render_template,jsonify
 from app.errors import DomainError
 from app.config import TITLE,MODULES,SHORT
 from app.workflow import run,load
 from app import store
+from app.modules.m7_archive.export_out import evidence_bundle,evidence_checksum
+
+def evidence_view(run_id):
+    """M5 估界页与 M7 归档导出共用：同一份正式观测证据包与同一指纹。"""
+    package,pending,patches=store.active_evidence(run_id)
+    package=dict(package)
+    package['fingerprint']=evidence_checksum(package)
+    package['export_text']=evidence_bundle(package)
+    return {'package':package,'pending':pending,'patches':patches,
+            'history':store.evidence_history(run_id)}
 
 def payload():
     data=request.get_json(silent=True) or {}
